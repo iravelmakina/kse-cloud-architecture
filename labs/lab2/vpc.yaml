@@ -36,14 +36,14 @@ Resources:
       InstanceTenancy: default
       Tags:
         - Key: Name
-          Value: vpc-lab2
+          Value: velmakina-lab3-vpc
 
   myInternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
         - Key: Name
-          Value: lab2-igw
+          Value: velmakina-lab3-igw
 
   myVPCGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
@@ -59,7 +59,7 @@ Resources:
       VpcId: !Ref myVPC
       Tags:
         - Key: Name
-          Value: lab2-rt-public
+          Value: velmakina-lab3-rt-public
 
   myPublicRoute:
     Type: AWS::EC2::Route
@@ -78,7 +78,7 @@ Resources:
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: lab2-public
+          Value: velmakina-lab3-public
 
   myPublicSubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -94,7 +94,7 @@ Resources:
       VpcId: !Ref myVPC
       Tags:
         - Key: Name
-          Value: lab2-rt-private
+          Value: velmakina-lab3-rt-private
 
   myPrivateSubnet:
     Type: AWS::EC2::Subnet
@@ -105,7 +105,7 @@ Resources:
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: lab2-private
+          Value: velmakina-lab3-private
 
   myPrivateSubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
