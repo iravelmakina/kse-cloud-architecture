@@ -1,0 +1,13 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "OnlyHrRoleCanRead",
+    "Effect": "Allow",
+    "Principal": {"AWS": "arn:aws:iam::361577816422:role/lab-hr"},
+    "Action": ["s3:GetObject", "s3:ListBucket"],
+    "Resource": [
+      "arn:aws:s3:::kse-velmakina-hr",
+      "arn:aws:s3:::kse-velmakina-hr/*"
+    ]
+  }]
+}

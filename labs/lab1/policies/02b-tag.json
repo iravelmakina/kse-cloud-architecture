@@ -1,0 +1,30 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListOnlyPublicPrefix",
+      "Effect": "Allow",
+      "Principal": {"AWS": "arn:aws:iam::361577816422:role/lab-hr"},
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::kse-velmakina-hr",
+      "Condition": {"StringLike": {"s3:prefix": "public/*"}}
+    },
+    {
+      "Sid": "ReadOnlyPublicObjects",
+      "Effect": "Allow",
+      "Principal": {"AWS": "arn:aws:iam::361577816422:role/lab-hr"},
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::kse-velmakina-hr/public/*"
+    },
+    {
+      "Sid": "AnalystReadsOnlyPublicClassified",
+      "Effect": "Allow",
+      "Principal": {"AWS": "arn:aws:iam::361577816422:role/lab-analyst"},
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::kse-velmakina-hr/*",
+      "Condition": {
+        "StringEquals": {"s3:ExistingObjectTag/classification": "public"}
+      }
+    }
+  ]
+}
