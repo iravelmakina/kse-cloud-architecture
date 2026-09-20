@@ -1,0 +1,127 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: >
+  Lab 2 - VPC built manually in the console, exported with the CloudFormation
+  IaC Generator and rewritten by hand. Same resources, nothing added:
+  physical IDs replaced with Refs, retain policies removed, and the
+  AWS-managed defaults (main route table, default security group, default
+  NACL, DHCP options, local routes) dropped because they cannot be created.
+
+Parameters:
+  paramVpcCIDR:
+    Description: IPv4 CIDR for the VPC
+    Type: String
+    Default: 10.0.0.0/16
+
+  paramPublicSubnetCIDR:
+    Description: Public subnet CIDR (11 usable addresses - AWS reserves 5)
+    Type: String
+    Default: 10.0.0.16/28
+
+  paramPrivateSubnetCIDR:
+    Description: Private subnet CIDR (59 usable addresses)
+    Type: String
+    Default: 10.0.1.0/26
+
+Resources:
+
+  # ---------- VPC and internet gateway ----------
+
+  myVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref paramVpcCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: false
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: velmakina-lab3-vpc
+
+  myInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: velmakina-lab3-igw
+
+  myVPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref myVPC
+      InternetGatewayId: !Ref myInternetGateway
+
+  # ---------- Public side ----------
+
+  myPublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref myVPC
+      Tags:
+        - Key: Name
+          Value: velmakina-lab3-rt-public
+
+  myPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: myVPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref myPublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref myInternetGateway
+
+  myPublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref myVPC
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: !Ref paramPublicSubnetCIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: velmakina-lab3-public
+
+  myPublicSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref myPublicRouteTable
+      SubnetId: !Ref myPublicSubnet
+
+  # ---------- Private side ----------
+
+  myPrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref myVPC
+      Tags:
+        - Key: Name
+          Value: velmakina-lab3-rt-private
+
+  myPrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref myVPC
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: !Ref paramPrivateSubnetCIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: velmakina-lab3-private
+
+  myPrivateSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref myPrivateRouteTable
+      SubnetId: !Ref myPrivateSubnet
+
+Outputs:
+  outputVpcId:
+    Description: VPC id
+    Value: !Ref myVPC
+
+  outputPublicSubnet:
+    Description: Public subnet id
+    Value: !Ref myPublicSubnet
+
+  outputPrivateSubnet:
+    Description: Private subnet id
+    Value: !Ref myPrivateSubnet
